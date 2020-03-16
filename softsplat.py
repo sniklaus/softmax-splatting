@@ -327,7 +327,7 @@ class _FunctionSoftsplat(torch.autograd.Function):
 
 		# end
 
-		return gradInput, gradVertical, gradHorizontal
+		return gradInput, gradFlow
 	# end
 # end
 
