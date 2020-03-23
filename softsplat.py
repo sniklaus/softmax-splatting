@@ -17,11 +17,11 @@ kernel_Softsplat_updateOutput = '''
 		const int intY = ( intIndex / SIZE_3(output)                                   ) % SIZE_2(output);
 		const int intX = ( intIndex                                                    ) % SIZE_3(output);
 
-		float dblOutputX = (float) (intX) + VALUE_4(flow, intN, 0, intY, intX);
-		float dblOutputY = (float) (intY) + VALUE_4(flow, intN, 1, intY, intX);
+		float fltOutputX = (float) (intX) + VALUE_4(flow, intN, 0, intY, intX);
+		float fltOutputY = (float) (intY) + VALUE_4(flow, intN, 1, intY, intX);
 
-		int intNorthwestX = (int) (floor(dblOutputX));
-		int intNorthwestY = (int) (floor(dblOutputY));
+		int intNorthwestX = (int) (floor(fltOutputX));
+		int intNorthwestY = (int) (floor(fltOutputY));
 		int intNortheastX = intNorthwestX + 1;
 		int intNortheastY = intNorthwestY;
 		int intSouthwestX = intNorthwestX;
@@ -29,25 +29,25 @@ kernel_Softsplat_updateOutput = '''
 		int intSoutheastX = intNorthwestX + 1;
 		int intSoutheastY = intNorthwestY + 1;
 
-		float dblNorthwest = ((float) (intSoutheastX) - dblOutputX   ) * ((float) (intSoutheastY) - dblOutputY   );
-		float dblNortheast = (dblOutputX    - (float) (intSouthwestX)) * ((float) (intSouthwestY) - dblOutputY   );
-		float dblSouthwest = ((float) (intNortheastX) - dblOutputX   ) * (dblOutputY    - (float) (intNortheastY));
-		float dblSoutheast = (dblOutputX    - (float) (intNorthwestX)) * (dblOutputY    - (float) (intNorthwestY));
+		float fltNorthwest = ((float) (intSoutheastX) - fltOutputX   ) * ((float) (intSoutheastY) - fltOutputY   );
+		float fltNortheast = (fltOutputX    - (float) (intSouthwestX)) * ((float) (intSouthwestY) - fltOutputY   );
+		float fltSouthwest = ((float) (intNortheastX) - fltOutputX   ) * (fltOutputY    - (float) (intNortheastY));
+		float fltSoutheast = (fltOutputX    - (float) (intNorthwestX)) * (fltOutputY    - (float) (intNorthwestY));
 
 		if ((intNorthwestX >= 0) & (intNorthwestX < SIZE_3(output)) & (intNorthwestY >= 0) & (intNorthwestY < SIZE_2(output))) {
-			atomicAdd(&output[OFFSET_4(output, intN, intC, intNorthwestY, intNorthwestX)], VALUE_4(input, intN, intC, intY, intX) * dblNorthwest);
+			atomicAdd(&output[OFFSET_4(output, intN, intC, intNorthwestY, intNorthwestX)], VALUE_4(input, intN, intC, intY, intX) * fltNorthwest);
 		}
 
 		if ((intNortheastX >= 0) & (intNortheastX < SIZE_3(output)) & (intNortheastY >= 0) & (intNortheastY < SIZE_2(output))) {
-			atomicAdd(&output[OFFSET_4(output, intN, intC, intNortheastY, intNortheastX)], VALUE_4(input, intN, intC, intY, intX) * dblNortheast);
+			atomicAdd(&output[OFFSET_4(output, intN, intC, intNortheastY, intNortheastX)], VALUE_4(input, intN, intC, intY, intX) * fltNortheast);
 		}
 
 		if ((intSouthwestX >= 0) & (intSouthwestX < SIZE_3(output)) & (intSouthwestY >= 0) & (intSouthwestY < SIZE_2(output))) {
-			atomicAdd(&output[OFFSET_4(output, intN, intC, intSouthwestY, intSouthwestX)], VALUE_4(input, intN, intC, intY, intX) * dblSouthwest);
+			atomicAdd(&output[OFFSET_4(output, intN, intC, intSouthwestY, intSouthwestX)], VALUE_4(input, intN, intC, intY, intX) * fltSouthwest);
 		}
 
 		if ((intSoutheastX >= 0) & (intSoutheastX < SIZE_3(output)) & (intSoutheastY >= 0) & (intSoutheastY < SIZE_2(output))) {
-			atomicAdd(&output[OFFSET_4(output, intN, intC, intSoutheastY, intSoutheastX)], VALUE_4(input, intN, intC, intY, intX) * dblSoutheast);
+			atomicAdd(&output[OFFSET_4(output, intN, intC, intSoutheastY, intSoutheastX)], VALUE_4(input, intN, intC, intY, intX) * fltSoutheast);
 		}
 	} }
 '''
@@ -66,13 +66,13 @@ kernel_Softsplat_updateGradInput = '''
 		const int intY = ( intIndex / SIZE_3(gradInput)                                         ) % SIZE_2(gradInput);
 		const int intX = ( intIndex                                                             ) % SIZE_3(gradInput);
 
-		float dblGradInput = 0.0;
+		float fltGradInput = 0.0;
 
-		float dblOutputX = (float) (intX) + VALUE_4(flow, intN, 0, intY, intX);
-		float dblOutputY = (float) (intY) + VALUE_4(flow, intN, 1, intY, intX);
+		float fltOutputX = (float) (intX) + VALUE_4(flow, intN, 0, intY, intX);
+		float fltOutputY = (float) (intY) + VALUE_4(flow, intN, 1, intY, intX);
 
-		int intNorthwestX = (int) (floor(dblOutputX));
-		int intNorthwestY = (int) (floor(dblOutputY));
+		int intNorthwestX = (int) (floor(fltOutputX));
+		int intNorthwestY = (int) (floor(fltOutputY));
 		int intNortheastX = intNorthwestX + 1;
 		int intNortheastY = intNorthwestY;
 		int intSouthwestX = intNorthwestX;
@@ -80,28 +80,28 @@ kernel_Softsplat_updateGradInput = '''
 		int intSoutheastX = intNorthwestX + 1;
 		int intSoutheastY = intNorthwestY + 1;
 
-		float dblNorthwest = ((float) (intSoutheastX) - dblOutputX   ) * ((float) (intSoutheastY) - dblOutputY   );
-		float dblNortheast = (dblOutputX    - (float) (intSouthwestX)) * ((float) (intSouthwestY) - dblOutputY   );
-		float dblSouthwest = ((float) (intNortheastX) - dblOutputX   ) * (dblOutputY    - (float) (intNortheastY));
-		float dblSoutheast = (dblOutputX    - (float) (intNorthwestX)) * (dblOutputY    - (float) (intNorthwestY));
+		float fltNorthwest = ((float) (intSoutheastX) - fltOutputX   ) * ((float) (intSoutheastY) - fltOutputY   );
+		float fltNortheast = (fltOutputX    - (float) (intSouthwestX)) * ((float) (intSouthwestY) - fltOutputY   );
+		float fltSouthwest = ((float) (intNortheastX) - fltOutputX   ) * (fltOutputY    - (float) (intNortheastY));
+		float fltSoutheast = (fltOutputX    - (float) (intNorthwestX)) * (fltOutputY    - (float) (intNorthwestY));
 
 		if ((intNorthwestX >= 0) & (intNorthwestX < SIZE_3(gradOutput)) & (intNorthwestY >= 0) & (intNorthwestY < SIZE_2(gradOutput))) {
-			dblGradInput += VALUE_4(gradOutput, intN, intC, intNorthwestY, intNorthwestX) * dblNorthwest;
+			fltGradInput += VALUE_4(gradOutput, intN, intC, intNorthwestY, intNorthwestX) * fltNorthwest;
 		}
 
 		if ((intNortheastX >= 0) & (intNortheastX < SIZE_3(gradOutput)) & (intNortheastY >= 0) & (intNortheastY < SIZE_2(gradOutput))) {
-			dblGradInput += VALUE_4(gradOutput, intN, intC, intNortheastY, intNortheastX) * dblNortheast;
+			fltGradInput += VALUE_4(gradOutput, intN, intC, intNortheastY, intNortheastX) * fltNortheast;
 		}
 
 		if ((intSouthwestX >= 0) & (intSouthwestX < SIZE_3(gradOutput)) & (intSouthwestY >= 0) & (intSouthwestY < SIZE_2(gradOutput))) {
-			dblGradInput += VALUE_4(gradOutput, intN, intC, intSouthwestY, intSouthwestX) * dblSouthwest;
+			fltGradInput += VALUE_4(gradOutput, intN, intC, intSouthwestY, intSouthwestX) * fltSouthwest;
 		}
 
 		if ((intSoutheastX >= 0) & (intSoutheastX < SIZE_3(gradOutput)) & (intSoutheastY >= 0) & (intSoutheastY < SIZE_2(gradOutput))) {
-			dblGradInput += VALUE_4(gradOutput, intN, intC, intSoutheastY, intSoutheastX) * dblSoutheast;
+			fltGradInput += VALUE_4(gradOutput, intN, intC, intSoutheastY, intSoutheastX) * fltSoutheast;
 		}
 
-		gradInput[intIndex] = dblGradInput;
+		gradInput[intIndex] = fltGradInput;
 	} }
 '''
 
@@ -114,18 +114,18 @@ kernel_Softsplat_updateGradFlow = '''
 		float* gradInput,
 		float* gradFlow
 	) { for (int intIndex = (blockIdx.x * blockDim.x) + threadIdx.x; intIndex < n; intIndex += blockDim.x * gridDim.x) {
-		float dblGradFlow = 0.0;
+		float fltGradFlow = 0.0;
 
 		const int intN = ( intIndex / SIZE_3(gradFlow) / SIZE_2(gradFlow) / SIZE_1(gradFlow) ) % SIZE_0(gradFlow);
 		const int intC = ( intIndex / SIZE_3(gradFlow) / SIZE_2(gradFlow)                    ) % SIZE_1(gradFlow);
 		const int intY = ( intIndex / SIZE_3(gradFlow)                                       ) % SIZE_2(gradFlow);
 		const int intX = ( intIndex                                                          ) % SIZE_3(gradFlow);
 
-		float dblOutputX = (float) (intX) + VALUE_4(flow, intN, 0, intY, intX);
-		float dblOutputY = (float) (intY) + VALUE_4(flow, intN, 1, intY, intX);
+		float fltOutputX = (float) (intX) + VALUE_4(flow, intN, 0, intY, intX);
+		float fltOutputY = (float) (intY) + VALUE_4(flow, intN, 1, intY, intX);
 
-		int intNorthwestX = (int) (floor(dblOutputX));
-		int intNorthwestY = (int) (floor(dblOutputY));
+		int intNorthwestX = (int) (floor(fltOutputX));
+		int intNorthwestY = (int) (floor(fltOutputY));
 		int intNortheastX = intNorthwestX + 1;
 		int intNortheastY = intNorthwestY;
 		int intSouthwestX = intNorthwestX;
@@ -133,99 +133,99 @@ kernel_Softsplat_updateGradFlow = '''
 		int intSoutheastX = intNorthwestX + 1;
 		int intSoutheastY = intNorthwestY + 1;
 
-		float dblNorthwest = 0.0;
-		float dblNortheast = 0.0;
-		float dblSouthwest = 0.0;
-		float dblSoutheast = 0.0;
+		float fltNorthwest = 0.0;
+		float fltNortheast = 0.0;
+		float fltSouthwest = 0.0;
+		float fltSoutheast = 0.0;
 
 		if (intC == 0) {
-			dblNorthwest = ((float) (-1.0)) * ((float) (intSoutheastY) - dblOutputY   );
-			dblNortheast = ((float) (+1.0)) * ((float) (intSouthwestY) - dblOutputY   );
-			dblSouthwest = ((float) (-1.0)) * (dblOutputY    - (float) (intNortheastY));
-			dblSoutheast = ((float) (+1.0)) * (dblOutputY    - (float) (intNorthwestY));
+			fltNorthwest = ((float) (-1.0)) * ((float) (intSoutheastY) - fltOutputY   );
+			fltNortheast = ((float) (+1.0)) * ((float) (intSouthwestY) - fltOutputY   );
+			fltSouthwest = ((float) (-1.0)) * (fltOutputY    - (float) (intNortheastY));
+			fltSoutheast = ((float) (+1.0)) * (fltOutputY    - (float) (intNorthwestY));
 
 		} else if (intC == 1) {
-			dblNorthwest = ((float) (intSoutheastX) - dblOutputX   ) * ((float) (-1.0));
-			dblNortheast = (dblOutputX    - (float) (intSouthwestX)) * ((float) (-1.0));
-			dblSouthwest = ((float) (intNortheastX) - dblOutputX   ) * ((float) (+1.0));
-			dblSoutheast = (dblOutputX    - (float) (intNorthwestX)) * ((float) (+1.0));
+			fltNorthwest = ((float) (intSoutheastX) - fltOutputX   ) * ((float) (-1.0));
+			fltNortheast = (fltOutputX    - (float) (intSouthwestX)) * ((float) (-1.0));
+			fltSouthwest = ((float) (intNortheastX) - fltOutputX   ) * ((float) (+1.0));
+			fltSoutheast = (fltOutputX    - (float) (intNorthwestX)) * ((float) (+1.0));
 
 		}
 
 		for (int intChannel = 0; intChannel < SIZE_1(gradOutput); intChannel += 1) {
-			float dblInput = VALUE_4(input, intN, intChannel, intY, intX);
+			float fltInput = VALUE_4(input, intN, intChannel, intY, intX);
 
 			if ((intNorthwestX >= 0) & (intNorthwestX < SIZE_3(gradOutput)) & (intNorthwestY >= 0) & (intNorthwestY < SIZE_2(gradOutput))) {
-				dblGradFlow += dblInput * VALUE_4(gradOutput, intN, intChannel, intNorthwestY, intNorthwestX) * dblNorthwest;
+				fltGradFlow += fltInput * VALUE_4(gradOutput, intN, intChannel, intNorthwestY, intNorthwestX) * fltNorthwest;
 			}
 
 			if ((intNortheastX >= 0) & (intNortheastX < SIZE_3(gradOutput)) & (intNortheastY >= 0) & (intNortheastY < SIZE_2(gradOutput))) {
-				dblGradFlow += dblInput * VALUE_4(gradOutput, intN, intChannel, intNortheastY, intNortheastX) * dblNortheast;
+				fltGradFlow += fltInput * VALUE_4(gradOutput, intN, intChannel, intNortheastY, intNortheastX) * fltNortheast;
 			}
 
 			if ((intSouthwestX >= 0) & (intSouthwestX < SIZE_3(gradOutput)) & (intSouthwestY >= 0) & (intSouthwestY < SIZE_2(gradOutput))) {
-				dblGradFlow += dblInput * VALUE_4(gradOutput, intN, intChannel, intSouthwestY, intSouthwestX) * dblSouthwest;
+				fltGradFlow += fltInput * VALUE_4(gradOutput, intN, intChannel, intSouthwestY, intSouthwestX) * fltSouthwest;
 			}
 
 			if ((intSoutheastX >= 0) & (intSoutheastX < SIZE_3(gradOutput)) & (intSoutheastY >= 0) & (intSoutheastY < SIZE_2(gradOutput))) {
-				dblGradFlow += dblInput * VALUE_4(gradOutput, intN, intChannel, intSoutheastY, intSoutheastX) * dblSoutheast;
+				fltGradFlow += fltInput * VALUE_4(gradOutput, intN, intChannel, intSoutheastY, intSoutheastX) * fltSoutheast;
 			}
 		}
 
-		gradFlow[intIndex] = dblGradFlow;
+		gradFlow[intIndex] = fltGradFlow;
 	} }
 '''
 
-def cupy_kernel(strFunction, objectVariables):
+def cupy_kernel(strFunction, objVariables):
 	strKernel = globals()[strFunction]
 
 	while True:
-		objectMatch = re.search('(SIZE_)([0-4])(\()([^\)]*)(\))', strKernel)
+		objMatch = re.search('(SIZE_)([0-4])(\()([^\)]*)(\))', strKernel)
 
-		if objectMatch is None:
+		if objMatch is None:
 			break
 		# end
 
-		intArg = int(objectMatch.group(2))
+		intArg = int(objMatch.group(2))
 
-		strTensor = objectMatch.group(4)
-		intSizes = objectVariables[strTensor].size()
+		strTensor = objMatch.group(4)
+		intSizes = objVariables[strTensor].size()
 
-		strKernel = strKernel.replace(objectMatch.group(), str(intSizes[intArg]))
+		strKernel = strKernel.replace(objMatch.group(), str(intSizes[intArg]))
 	# end
 
 	while True:
-		objectMatch = re.search('(OFFSET_)([0-4])(\()([^\)]+)(\))', strKernel)
+		objMatch = re.search('(OFFSET_)([0-4])(\()([^\)]+)(\))', strKernel)
 
-		if objectMatch is None:
+		if objMatch is None:
 			break
 		# end
 
-		intArgs = int(objectMatch.group(2))
-		strArgs = objectMatch.group(4).split(',')
+		intArgs = int(objMatch.group(2))
+		strArgs = objMatch.group(4).split(',')
 
 		strTensor = strArgs[0]
-		intStrides = objectVariables[strTensor].stride()
+		intStrides = objVariables[strTensor].stride()
 		strIndex = [ '((' + strArgs[intArg + 1].replace('{', '(').replace('}', ')').strip() + ')*' + str(intStrides[intArg]) + ')' for intArg in range(intArgs) ]
 
-		strKernel = strKernel.replace(objectMatch.group(0), '(' + str.join('+', strIndex) + ')')
+		strKernel = strKernel.replace(objMatch.group(0), '(' + str.join('+', strIndex) + ')')
 	# end
 
 	while True:
-		objectMatch = re.search('(VALUE_)([0-4])(\()([^\)]+)(\))', strKernel)
+		objMatch = re.search('(VALUE_)([0-4])(\()([^\)]+)(\))', strKernel)
 
-		if objectMatch is None:
+		if objMatch is None:
 			break
 		# end
 
-		intArgs = int(objectMatch.group(2))
-		strArgs = objectMatch.group(4).split(',')
+		intArgs = int(objMatch.group(2))
+		strArgs = objMatch.group(4).split(',')
 
 		strTensor = strArgs[0]
-		intStrides = objectVariables[strTensor].stride()
+		intStrides = objVariables[strTensor].stride()
 		strIndex = [ '((' + strArgs[intArg + 1].replace('{', '(').replace('}', ')').strip() + ')*' + str(intStrides[intArg]) + ')' for intArg in range(intArgs) ]
 
-		strKernel = strKernel.replace(objectMatch.group(0), strTensor + '[' + str.join('+', strIndex) + ']')
+		strKernel = strKernel.replace(objMatch.group(0), strTensor + '[' + str.join('+', strIndex) + ']')
 	# end
 
 	return strKernel
@@ -331,28 +331,28 @@ class _FunctionSoftsplat(torch.autograd.Function):
 	# end
 # end
 
-def FunctionSoftsplat(tensorInput, tensorFlow, tensorMetric, strType):
-	assert(tensorMetric is None or tensorMetric.shape[1] == 1)
+def FunctionSoftsplat(tenInput, tenFlow, tenMetric, strType):
+	assert(tenMetric is None or tenMetric.shape[1] == 1)
 	assert(strType in ['summation', 'average', 'linear', 'softmax'])
 
 	if strType == 'average':
-		tensorInput = torch.cat([ tensorInput, tensorInput.new_ones(tensorInput.shape[0], 1, tensorInput.shape[2], tensorInput.shape[3]) ], 1)
+		tenInput = torch.cat([ tenInput, tenInput.new_ones(tenInput.shape[0], 1, tenInput.shape[2], tenInput.shape[3]) ], 1)
 
 	elif strType == 'linear':
-		tensorInput = torch.cat([ tensorInput * tensorMetric, tensorMetric ], 1)
+		tenInput = torch.cat([ tenInput * tenMetric, tenMetric ], 1)
 
 	elif strType == 'softmax':
-		tensorInput = torch.cat([ tensorInput * tensorMetric.exp(), tensorMetric.exp() ], 1)
+		tenInput = torch.cat([ tenInput * tenMetric.exp(), tenMetric.exp() ], 1)
 
 	# end
 
-	tensorOutput = _FunctionSoftsplat.apply(tensorInput, tensorFlow)
+	tenOutput = _FunctionSoftsplat.apply(tenInput, tenFlow)
 
 	if strType != 'summation':
-		tensorOutput = tensorOutput[:, :-1, :, :] / (tensorOutput[:, -1:, :, :] + 0.0000001)
+		tenOutput = tenOutput[:, :-1, :, :] / (tenOutput[:, -1:, :, :] + 0.0000001)
 	# end
 
-	return tensorOutput
+	return tenOutput
 # end
 
 class ModuleSoftsplat(torch.nn.Module):
@@ -362,7 +362,7 @@ class ModuleSoftsplat(torch.nn.Module):
 		self.strType = strType
 	# end
 
-	def forward(self, tensorInput, tensorFlow, tensorMetric):
-		return FunctionSoftsplat(tensorInput, tensorFlow, tensorMetric, strType)
+	def forward(self, tenInput, tenFlow, tenMetric):
+		return FunctionSoftsplat(tenInput, tenFlow, tenMetric, strType)
 	# end
 # end

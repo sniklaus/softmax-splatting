@@ -13,42 +13,57 @@ assert(int(str('').join(torch.__version__.split('.')[0:2])) >= 13) # requires at
 
 ##########################################################
 
-backwarp_tensorGrid = {}
+def read_flo(strFile):
+    with open(strFile, 'rb') as objFile:
+        strFlow = objFile.read()
+    # end
 
-def backwarp(tensorInput, tensorFlow):
-	if str(tensorFlow.size()) not in backwarp_tensorGrid:
-		tensorHorizontal = torch.linspace(-1.0, 1.0, tensorFlow.shape[3]).view(1, 1, 1, tensorFlow.shape[3]).expand(tensorFlow.shape[0], -1, tensorFlow.shape[2], -1)
-		tensorVertical = torch.linspace(-1.0, 1.0, tensorFlow.shape[2]).view(1, 1, tensorFlow.shape[2], 1).expand(tensorFlow.shape[0], -1, -1, tensorFlow.shape[3])
+    assert(numpy.frombuffer(strFlow, dtype=numpy.float32, count=1, offset=0) == 202021.25)
 
-		backwarp_tensorGrid[str(tensorFlow.size())] = torch.cat([ tensorHorizontal, tensorVertical ], 1).cuda()
-	# end
+    intWidth = numpy.frombuffer(strFlow, dtype=numpy.int32, count=1, offset=4)[0]
+    intHeight = numpy.frombuffer(strFlow, dtype=numpy.int32, count=1, offset=8)[0]
 
-	tensorFlow = torch.cat([ tensorFlow[:, 0:1, :, :] / ((tensorInput.shape[3] - 1.0) / 2.0), tensorFlow[:, 1:2, :, :] / ((tensorInput.shape[2] - 1.0) / 2.0) ], 1)
-
-	return torch.nn.functional.grid_sample(input=tensorInput, grid=(backwarp_tensorGrid[str(tensorFlow.size())] + tensorFlow).permute(0, 2, 3, 1), mode='bilinear', padding_mode='zeros', align_corners=True)
+    return numpy.frombuffer(strFlow, dtype=numpy.float32, count=intHeight * intWidth * 2, offset=12).reshape([ intHeight, intWidth, 2 ])
 # end
 
 ##########################################################
 
-numpyFirst = cv2.imread(filename='./images/first.png', flags=-1).astype(numpy.float32) / 255.0
-numpySecond = cv2.imread(filename='./images/second.png', flags=-1).astype(numpy.float32) / 255.0
-numpyFlow = cv2.optflow.readOpticalFlow(path='./images/flow.flo')
+backwarp_tenGrid = {}
 
-tensorFirst = torch.FloatTensor(numpyFirst.transpose(2, 0, 1)[None, :, :, :]).cuda()
-tensorSecond = torch.FloatTensor(numpySecond.transpose(2, 0, 1)[None, :, :, :]).cuda()
-tensorFlow = torch.FloatTensor(numpyFlow.transpose(2, 0, 1)[None, :, :, :]).cuda()
+def backwarp(tenInput, tenFlow):
+	if str(tenFlow.size()) not in backwarp_tenGrid:
+		tenHorizontal = torch.linspace(-1.0, 1.0, tenFlow.shape[3]).view(1, 1, 1, tenFlow.shape[3]).expand(tenFlow.shape[0], -1, tenFlow.shape[2], -1)
+		tenVertical = torch.linspace(-1.0, 1.0, tenFlow.shape[2]).view(1, 1, tenFlow.shape[2], 1).expand(tenFlow.shape[0], -1, -1, tenFlow.shape[3])
 
-tensorMetric = torch.nn.functional.l1_loss(input=tensorFirst, target=backwarp(tensorInput=tensorSecond, tensorFlow=tensorFlow), reduction='none').mean(1, True)
+		backwarp_tenGrid[str(tenFlow.size())] = torch.cat([ tenHorizontal, tenVertical ], 1).cuda()
+	# end
 
-for intTime, dblTime in enumerate(numpy.linspace(0.0, 1.0, 11).tolist()):
-	tensorSummation = softsplat.FunctionSoftsplat(tensorInput=tensorFirst, tensorFlow=tensorFlow * dblTime, tensorMetric=None, strType='summation')
-	tensorAverage = softsplat.FunctionSoftsplat(tensorInput=tensorFirst, tensorFlow=tensorFlow * dblTime, tensorMetric=None, strType='average')
-	tensorLinear = softsplat.FunctionSoftsplat(tensorInput=tensorFirst, tensorFlow=tensorFlow * dblTime, tensorMetric=(0.3 - tensorMetric).clamp(0.0000001, 1.0), strType='linear') # finding a good linearly metric is difficult, and it is not invariant to translations
-	tensorSoftmax = softsplat.FunctionSoftsplat(tensorInput=tensorFirst, tensorFlow=tensorFlow * dblTime, tensorMetric=-20.0 * tensorMetric, strType='softmax') # -20.0 is a hyperparameter, called 'beta' in the paper, that could be learned using a torch.Parameter
+	tenFlow = torch.cat([ tenFlow[:, 0:1, :, :] / ((tenInput.shape[3] - 1.0) / 2.0), tenFlow[:, 1:2, :, :] / ((tenInput.shape[2] - 1.0) / 2.0) ], 1)
 
-	cv2.imshow(winname='summation', mat=tensorSummation[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
-	cv2.imshow(winname='average', mat=tensorAverage[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
-	cv2.imshow(winname='linear', mat=tensorLinear[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
-	cv2.imshow(winname='softmax', mat=tensorSoftmax[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
+	return torch.nn.functional.grid_sample(input=tenInput, grid=(backwarp_tenGrid[str(tenFlow.size())] + tenFlow).permute(0, 2, 3, 1), mode='bilinear', padding_mode='zeros', align_corners=True)
+# end
+
+##########################################################
+
+npyFirst = cv2.imread(filename='./images/first.png', flags=-1).astype(numpy.float32) / 255.0
+npySecond = cv2.imread(filename='./images/second.png', flags=-1).astype(numpy.float32) / 255.0
+npyFlow = read_flo('./images/flow.flo')
+
+tenFirst = torch.FloatTensor(npyFirst.transpose(2, 0, 1)[None, :, :, :]).cuda()
+tenSecond = torch.FloatTensor(npySecond.transpose(2, 0, 1)[None, :, :, :]).cuda()
+tenFlow = torch.FloatTensor(npyFlow.transpose(2, 0, 1)[None, :, :, :]).cuda()
+
+tenMetric = torch.nn.functional.l1_loss(input=tenFirst, target=backwarp(tenInput=tenSecond, tenFlow=tenFlow), reduction='none').mean(1, True)
+
+for intTime, fltTime in enumerate(numpy.linspace(0.0, 1.0, 11).tolist()):
+	tenSummation = softsplat.FunctionSoftsplat(tenInput=tenFirst, tenFlow=tenFlow * fltTime, tenMetric=None, strType='summation')
+	tenAverage = softsplat.FunctionSoftsplat(tenInput=tenFirst, tenFlow=tenFlow * fltTime, tenMetric=None, strType='average')
+	tenLinear = softsplat.FunctionSoftsplat(tenInput=tenFirst, tenFlow=tenFlow * fltTime, tenMetric=(0.3 - tenMetric).clamp(0.0000001, 1.0), strType='linear') # finding a good linearly metric is difficult, and it is not invariant to translations
+	tenSoftmax = softsplat.FunctionSoftsplat(tenInput=tenFirst, tenFlow=tenFlow * fltTime, tenMetric=-20.0 * tenMetric, strType='softmax') # -20.0 is a hyperparameter, called 'beta' in the paper, that could be learned using a torch.Parameter
+
+	cv2.imshow(winname='summation', mat=tenSummation[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
+	cv2.imshow(winname='average', mat=tenAverage[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
+	cv2.imshow(winname='linear', mat=tenLinear[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
+	cv2.imshow(winname='softmax', mat=tenSoftmax[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
 	cv2.waitKey(delay=0)
 # end
