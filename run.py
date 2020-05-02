@@ -45,13 +45,9 @@ def backwarp(tenInput, tenFlow):
 
 ##########################################################
 
-npyFirst = cv2.imread(filename='./images/first.png', flags=-1).astype(numpy.float32) / 255.0
-npySecond = cv2.imread(filename='./images/second.png', flags=-1).astype(numpy.float32) / 255.0
-npyFlow = read_flo('./images/flow.flo')
-
-tenFirst = torch.FloatTensor(npyFirst.transpose(2, 0, 1)[None, :, :, :]).cuda()
-tenSecond = torch.FloatTensor(npySecond.transpose(2, 0, 1)[None, :, :, :]).cuda()
-tenFlow = torch.FloatTensor(npyFlow.transpose(2, 0, 1)[None, :, :, :]).cuda()
+tenFirst = torch.FloatTensor(numpy.ascontiguousarray(cv2.imread(filename='./images/first.png', flags=-1).transpose(2, 0, 1)[None, :, :, :].astype(numpy.float32) * (1.0 / 255.0))).cuda()
+tenSecond = torch.FloatTensor(numpy.ascontiguousarray(cv2.imread(filename='./images/second.png', flags=-1).transpose(2, 0, 1)[None, :, :, :].astype(numpy.float32) * (1.0 / 255.0))).cuda()
+tenFlow = torch.FloatTensor(numpy.ascontiguousarray(read_flo('./images/flow.flo').transpose(2, 0, 1)[None, :, :, :])).cuda()
 
 tenMetric = torch.nn.functional.l1_loss(input=tenFirst, target=backwarp(tenInput=tenSecond, tenFlow=tenFlow), reduction='none').mean(1, True)
 
