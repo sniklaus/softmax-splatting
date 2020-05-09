@@ -266,7 +266,7 @@ class _FunctionSoftsplat(torch.autograd.Function):
 				args=[ n, input.data_ptr(), flow.data_ptr(), output.data_ptr() ]
 			)
 
-		elif first.is_cuda == False:
+		elif input.is_cuda == False:
 			raise NotImplementedError()
 
 		# end
@@ -363,6 +363,6 @@ class ModuleSoftsplat(torch.nn.Module):
 	# end
 
 	def forward(self, tenInput, tenFlow, tenMetric):
-		return FunctionSoftsplat(tenInput, tenFlow, tenMetric, strType)
+		return FunctionSoftsplat(tenInput, tenFlow, tenMetric, self.strType)
 	# end
 # end
