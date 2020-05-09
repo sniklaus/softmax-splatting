@@ -238,8 +238,8 @@ def cupy_launch(strFunction, strKernel):
 
 class _FunctionSoftsplat(torch.autograd.Function):
 	@staticmethod
-	def forward(self, input, flow):
-		self.save_for_backward(input, flow)
+	def forward(ctx, input, flow):
+		ctx.save_for_backward(input, flow)
 
 		intSamples = input.shape[0]
 		intInputDepth, intInputHeight, intInputWidth = input.shape[1], input.shape[2], input.shape[3]
@@ -275,8 +275,8 @@ class _FunctionSoftsplat(torch.autograd.Function):
 	# end
 
 	@staticmethod
-	def backward(self, gradOutput):
-		input, flow = self.saved_tensors
+	def backward(ctx, gradOutput):
+		input, flow = ctx.saved_tensors
 
 		intSamples = input.shape[0]
 		intInputDepth, intInputHeight, intInputWidth = input.shape[1], input.shape[2], input.shape[3]
@@ -288,8 +288,8 @@ class _FunctionSoftsplat(torch.autograd.Function):
 
 		assert(gradOutput.is_contiguous() == True)
 
-		gradInput = input.new_zeros([ intSamples, intInputDepth, intInputHeight, intInputWidth ]) if self.needs_input_grad[0] == True else None
-		gradFlow = input.new_zeros([ intSamples, intFlowDepth, intFlowHeight, intFlowWidth ]) if self.needs_input_grad[1] == True else None
+		gradInput = input.new_zeros([ intSamples, intInputDepth, intInputHeight, intInputWidth ]) if ctx.needs_input_grad[0] == True else None
+		gradFlow = input.new_zeros([ intSamples, intFlowDepth, intFlowHeight, intFlowWidth ]) if ctx.needs_input_grad[1] == True else None
 
 		if input.is_cuda == True:
 			if gradInput is not None:
