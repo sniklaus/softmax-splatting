@@ -11,6 +11,9 @@ The provided example script is using OpenCV to load and display images, as well 
 ## usage
 We provide a small script to replicate the third figure of our paper [1]. You can simply run `python run.py` to obtain the comparison between summation splatting, average splatting, linear splatting, and softmax splatting. Please see this exemplatory `run.py` for additional information on how to use the provided reference implementation of our proposed softmax splatting operator for differentiable forward warping.
 
+## xiph
+In our paper, we propose to use 4K video clips from Xipth to evaluate video frame interpolation on high-resolution footage. Please see `benchmark.py` on how to reproduce the shown metrics.
+
 ## video
 <a href="http://content.sniklaus.com/softsplat/video.mp4" rel="Video"><img src="http://content.sniklaus.com/softsplat/video.jpg" alt="Video" width="100%"></a>
 
