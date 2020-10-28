@@ -18,12 +18,12 @@ def read_flo(strFile):
         strFlow = objFile.read()
     # end
 
-    assert(numpy.frombuffer(strFlow, dtype=numpy.float32, count=1, offset=0) == 202021.25)
+    assert(numpy.frombuffer(buffer=strFlow, dtype=numpy.float32, count=1, offset=0) == 202021.25)
 
-    intWidth = numpy.frombuffer(strFlow, dtype=numpy.int32, count=1, offset=4)[0]
-    intHeight = numpy.frombuffer(strFlow, dtype=numpy.int32, count=1, offset=8)[0]
+    intWidth = numpy.frombuffer(buffer=strFlow, dtype=numpy.int32, count=1, offset=4)[0]
+    intHeight = numpy.frombuffer(buffer=strFlow, dtype=numpy.int32, count=1, offset=8)[0]
 
-    return numpy.frombuffer(strFlow, dtype=numpy.float32, count=intHeight * intWidth * 2, offset=12).reshape([ intHeight, intWidth, 2 ])
+    return numpy.frombuffer(buffer=strFlow, dtype=numpy.float32, count=intHeight * intWidth * 2, offset=12).reshape([ intHeight, intWidth, 2 ])
 # end
 
 ##########################################################

@@ -349,9 +349,11 @@ def FunctionSoftsplat(tenInput, tenFlow, tenMetric, strType):
 	tenOutput = _FunctionSoftsplat.apply(tenInput, tenFlow)
 
 	if strType != 'summation':
-		tenSplattedMetric = tenOutput[:, -1:, :, :]
-		tenSplattedMetric[tenSplattedMetric == 0] = 1
-		tenOutput = tenOutput[:, :-1, :, :] / tenSplattedMetric
+		tenNormalize = tenOutput[:, -1:, :, :]
+
+		tenNormalize[tenNormalize == 0.0] = 1.0
+
+		tenOutput = tenOutput[:, :-1, :, :] / tenNormalize
 	# end
 
 	return tenOutput
