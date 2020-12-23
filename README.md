@@ -25,7 +25,7 @@ The provided implementation is strictly for academic purposes only. Should you b
 [1]  @inproceedings{Niklaus_CVPR_2020,
          author = {Simon Niklaus and Feng Liu},
          title = {Softmax Splatting for Video Frame Interpolation},
-         booktitle = {IEEE International Conference on Computer Vision},
+         booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
          year = {2020}
      }
 ```

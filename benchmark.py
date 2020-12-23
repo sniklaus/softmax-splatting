@@ -5,7 +5,7 @@ import glob
 import numpy
 import os
 import skimage
-import skimage.measure
+import skimage.metrics
 import sys
 import torch
 
@@ -102,8 +102,8 @@ for strCategory in ['resized', 'cropped']:
             
             npyEstimate = (run.estimate(tenFirst, tenSecond).clamp(0.0, 1.0).numpy().transpose(1, 2, 0) * 255.0).astype(numpy.uint8)
 
-            fltPsnr.append(skimage.measure.compare_psnr(im_true=npyReference, im_test=npyEstimate, data_range=255))
-            fltSsim.append(skimage.measure.compare_ssim(X=npyReference, Y=npyEstimate, data_range=255, multichannel=True))
+            fltPsnr.append(skimage.metrics.peak_signal_noise_ratio(image_true=npyReference, image_test=npyEstimate, data_range=255))
+            fltSsim.append(skimage.metrics.structural_similarity(im1=npyReference, im2=npyEstimate, data_range=255, multichannel=True))
         # end
     # end
 
