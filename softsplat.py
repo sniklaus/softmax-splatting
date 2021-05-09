@@ -29,10 +29,10 @@ kernel_Softsplat_updateOutput = '''
 		int intSoutheastX = intNorthwestX + 1;
 		int intSoutheastY = intNorthwestY + 1;
 
-		float fltNorthwest = ((float) (intSoutheastX) - fltOutputX   ) * ((float) (intSoutheastY) - fltOutputY   );
-		float fltNortheast = (fltOutputX    - (float) (intSouthwestX)) * ((float) (intSouthwestY) - fltOutputY   );
-		float fltSouthwest = ((float) (intNortheastX) - fltOutputX   ) * (fltOutputY    - (float) (intNortheastY));
-		float fltSoutheast = (fltOutputX    - (float) (intNorthwestX)) * (fltOutputY    - (float) (intNorthwestY));
+		float fltNorthwest = ((float) (intSoutheastX) - fltOutputX) * ((float) (intSoutheastY) - fltOutputY);
+		float fltNortheast = (fltOutputX - (float) (intSouthwestX)) * ((float) (intSouthwestY) - fltOutputY);
+		float fltSouthwest = ((float) (intNortheastX) - fltOutputX) * (fltOutputY - (float) (intNortheastY));
+		float fltSoutheast = (fltOutputX - (float) (intNorthwestX)) * (fltOutputY - (float) (intNorthwestY));
 
 		if ((intNorthwestX >= 0) & (intNorthwestX < SIZE_3(output)) & (intNorthwestY >= 0) & (intNorthwestY < SIZE_2(output))) {
 			atomicAdd(&output[OFFSET_4(output, intN, intC, intNorthwestY, intNorthwestX)], VALUE_4(input, intN, intC, intY, intX) * fltNorthwest);
@@ -80,10 +80,10 @@ kernel_Softsplat_updateGradInput = '''
 		int intSoutheastX = intNorthwestX + 1;
 		int intSoutheastY = intNorthwestY + 1;
 
-		float fltNorthwest = ((float) (intSoutheastX) - fltOutputX   ) * ((float) (intSoutheastY) - fltOutputY   );
-		float fltNortheast = (fltOutputX    - (float) (intSouthwestX)) * ((float) (intSouthwestY) - fltOutputY   );
-		float fltSouthwest = ((float) (intNortheastX) - fltOutputX   ) * (fltOutputY    - (float) (intNortheastY));
-		float fltSoutheast = (fltOutputX    - (float) (intNorthwestX)) * (fltOutputY    - (float) (intNorthwestY));
+		float fltNorthwest = ((float) (intSoutheastX) - fltOutputX) * ((float) (intSoutheastY) - fltOutputY);
+		float fltNortheast = (fltOutputX - (float) (intSouthwestX)) * ((float) (intSouthwestY) - fltOutputY);
+		float fltSouthwest = ((float) (intNortheastX) - fltOutputX) * (fltOutputY - (float) (intNortheastY));
+		float fltSoutheast = (fltOutputX - (float) (intNorthwestX)) * (fltOutputY - (float) (intNorthwestY));
 
 		if ((intNorthwestX >= 0) & (intNorthwestX < SIZE_3(gradOutput)) & (intNorthwestY >= 0) & (intNorthwestY < SIZE_2(gradOutput))) {
 			fltGradInput += VALUE_4(gradOutput, intN, intC, intNorthwestY, intNorthwestX) * fltNorthwest;
@@ -139,16 +139,16 @@ kernel_Softsplat_updateGradFlow = '''
 		float fltSoutheast = 0.0;
 
 		if (intC == 0) {
-			fltNorthwest = ((float) (-1.0)) * ((float) (intSoutheastY) - fltOutputY   );
-			fltNortheast = ((float) (+1.0)) * ((float) (intSouthwestY) - fltOutputY   );
-			fltSouthwest = ((float) (-1.0)) * (fltOutputY    - (float) (intNortheastY));
-			fltSoutheast = ((float) (+1.0)) * (fltOutputY    - (float) (intNorthwestY));
+			fltNorthwest = ((float) (-1.0)) * ((float) (intSoutheastY) - fltOutputY);
+			fltNortheast = ((float) (+1.0)) * ((float) (intSouthwestY) - fltOutputY);
+			fltSouthwest = ((float) (-1.0)) * (fltOutputY - (float) (intNortheastY));
+			fltSoutheast = ((float) (+1.0)) * (fltOutputY - (float) (intNorthwestY));
 
 		} else if (intC == 1) {
-			fltNorthwest = ((float) (intSoutheastX) - fltOutputX   ) * ((float) (-1.0));
-			fltNortheast = (fltOutputX    - (float) (intSouthwestX)) * ((float) (-1.0));
-			fltSouthwest = ((float) (intNortheastX) - fltOutputX   ) * ((float) (+1.0));
-			fltSoutheast = (fltOutputX    - (float) (intNorthwestX)) * ((float) (+1.0));
+			fltNorthwest = ((float) (intSoutheastX) - fltOutputX) * ((float) (-1.0));
+			fltNortheast = (fltOutputX - (float) (intSouthwestX)) * ((float) (-1.0));
+			fltSouthwest = ((float) (intNortheastX) - fltOutputX) * ((float) (+1.0));
+			fltSoutheast = (fltOutputX - (float) (intNorthwestX)) * ((float) (+1.0));
 
 		}
 
