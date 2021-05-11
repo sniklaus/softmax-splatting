@@ -249,8 +249,8 @@ class _FunctionSoftsplat(torch.autograd.Function):
 		assert(intInputHeight == intFlowHeight)
 		assert(intInputWidth == intFlowWidth)
 
-		assert(input.is_contiguous() == True)
-		assert(flow.is_contiguous() == True)
+        input = input.contiguous(); assert(input.is_cuda == True)
+        flow = flow.contiguous(); assert(flow.is_cuda == True)
 
 		output = input.new_zeros([ intSamples, intInputDepth, intInputHeight, intInputWidth ])
 
@@ -286,7 +286,7 @@ class _FunctionSoftsplat(torch.autograd.Function):
 		assert(intInputHeight == intFlowHeight)
 		assert(intInputWidth == intFlowWidth)
 
-		assert(gradOutput.is_contiguous() == True)
+        gradOutput = gradOutput.contiguous(); assert(gradOutput.is_cuda == True)
 
 		gradInput = input.new_zeros([ intSamples, intInputDepth, intInputHeight, intInputWidth ]) if self.needs_input_grad[0] == True else None
 		gradFlow = input.new_zeros([ intSamples, intFlowDepth, intFlowHeight, intFlowWidth ]) if self.needs_input_grad[1] == True else None
