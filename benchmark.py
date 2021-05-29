@@ -100,7 +100,7 @@ for strCategory in ['resized', 'cropped']:
             tenFirst = torch.FloatTensor(numpy.ascontiguousarray(npyFirst.transpose(2, 0, 1).astype(numpy.float32) * (1.0 / 255.0)))
             tenSecond = torch.FloatTensor(numpy.ascontiguousarray(npySecond.transpose(2, 0, 1).astype(numpy.float32) * (1.0 / 255.0)))
             
-            npyEstimate = (run.estimate(tenFirst, tenSecond).clamp(0.0, 1.0).numpy().transpose(1, 2, 0) * 255.0).astype(numpy.uint8)
+            npyEstimate = (run.estimate(tenFirst, tenSecond).clip(0.0, 1.0).numpy().transpose(1, 2, 0) * 255.0).astype(numpy.uint8)
 
             fltPsnr.append(skimage.metrics.peak_signal_noise_ratio(image_true=npyReference, image_test=npyEstimate, data_range=255))
             fltSsim.append(skimage.metrics.structural_similarity(im1=npyReference, im2=npyEstimate, data_range=255, multichannel=True))
