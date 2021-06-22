@@ -263,7 +263,7 @@ class _FunctionSoftsplat(torch.autograd.Function):
 			}))(
 				grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
 				block=tuple([ 512, 1, 1 ]),
-				args=[ n, input.data_ptr(), flow.data_ptr(), output.data_ptr() ]
+				args=[ cupy.int32(n), input.data_ptr(), flow.data_ptr(), output.data_ptr() ]
 			)
 
 		elif input.is_cuda == False:
@@ -303,7 +303,7 @@ class _FunctionSoftsplat(torch.autograd.Function):
 				}))(
 					grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
 					block=tuple([ 512, 1, 1 ]),
-					args=[ n, input.data_ptr(), flow.data_ptr(), gradOutput.data_ptr(), gradInput.data_ptr(), None ]
+					args=[ cupy.int32(n), input.data_ptr(), flow.data_ptr(), gradOutput.data_ptr(), gradInput.data_ptr(), None ]
 				)
 			# end
 
@@ -318,7 +318,7 @@ class _FunctionSoftsplat(torch.autograd.Function):
 				}))(
 					grid=tuple([ int((n + 512 - 1) / 512), 1, 1 ]),
 					block=tuple([ 512, 1, 1 ]),
-					args=[ n, input.data_ptr(), flow.data_ptr(), gradOutput.data_ptr(), None, gradFlow.data_ptr() ]
+					args=[ cupy.int32(n), input.data_ptr(), flow.data_ptr(), gradOutput.data_ptr(), None, gradFlow.data_ptr() ]
 				)
 			# end
 
