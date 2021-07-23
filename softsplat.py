@@ -361,7 +361,7 @@ def FunctionSoftsplat(tenInput, tenFlow, tenMetric, strType):
 
 class ModuleSoftsplat(torch.nn.Module):
 	def __init__(self, strType):
-		super(ModuleSoftsplat, self).__init__()
+		super().__init__()
 
 		self.strType = strType
 	# end

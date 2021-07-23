@@ -45,17 +45,17 @@ def backwarp(tenInput, tenFlow):
 
 ##########################################################
 
-tenFirst = torch.FloatTensor(numpy.ascontiguousarray(cv2.imread(filename='./images/first.png', flags=-1).transpose(2, 0, 1)[None, :, :, :].astype(numpy.float32) * (1.0 / 255.0))).cuda()
-tenSecond = torch.FloatTensor(numpy.ascontiguousarray(cv2.imread(filename='./images/second.png', flags=-1).transpose(2, 0, 1)[None, :, :, :].astype(numpy.float32) * (1.0 / 255.0))).cuda()
+tenOne = torch.FloatTensor(numpy.ascontiguousarray(cv2.imread(filename='./images/one.png', flags=-1).transpose(2, 0, 1)[None, :, :, :].astype(numpy.float32) * (1.0 / 255.0))).cuda()
+tenTwo = torch.FloatTensor(numpy.ascontiguousarray(cv2.imread(filename='./images/two.png', flags=-1).transpose(2, 0, 1)[None, :, :, :].astype(numpy.float32) * (1.0 / 255.0))).cuda()
 tenFlow = torch.FloatTensor(numpy.ascontiguousarray(read_flo('./images/flow.flo').transpose(2, 0, 1)[None, :, :, :])).cuda()
 
-tenMetric = torch.nn.functional.l1_loss(input=tenFirst, target=backwarp(tenInput=tenSecond, tenFlow=tenFlow), reduction='none').mean(1, True)
+tenMetric = torch.nn.functional.l1_loss(input=tenOne, target=backwarp(tenInput=tenTwo, tenFlow=tenFlow), reduction='none').mean(1, True)
 
 for intTime, fltTime in enumerate(numpy.linspace(0.0, 1.0, 11).tolist()):
-	tenSummation = softsplat.FunctionSoftsplat(tenInput=tenFirst, tenFlow=tenFlow * fltTime, tenMetric=None, strType='summation')
-	tenAverage = softsplat.FunctionSoftsplat(tenInput=tenFirst, tenFlow=tenFlow * fltTime, tenMetric=None, strType='average')
-	tenLinear = softsplat.FunctionSoftsplat(tenInput=tenFirst, tenFlow=tenFlow * fltTime, tenMetric=(0.3 - tenMetric).clip(0.0000001, 1.0), strType='linear') # finding a good linearly metric is difficult, and it is not invariant to translations
-	tenSoftmax = softsplat.FunctionSoftsplat(tenInput=tenFirst, tenFlow=tenFlow * fltTime, tenMetric=-20.0 * tenMetric, strType='softmax') # -20.0 is a hyperparameter, called 'alpha' in the paper, that could be learned using a torch.Parameter
+	tenSummation = softsplat.FunctionSoftsplat(tenInput=tenOne, tenFlow=tenFlow * fltTime, tenMetric=None, strType='summation')
+	tenAverage = softsplat.FunctionSoftsplat(tenInput=tenOne, tenFlow=tenFlow * fltTime, tenMetric=None, strType='average')
+	tenLinear = softsplat.FunctionSoftsplat(tenInput=tenOne, tenFlow=tenFlow * fltTime, tenMetric=(0.3 - tenMetric).clip(0.0000001, 1.0), strType='linear') # finding a good linearly metric is difficult, and it is not invariant to translations
+	tenSoftmax = softsplat.FunctionSoftsplat(tenInput=tenOne, tenFlow=tenFlow * fltTime, tenMetric=-20.0 * tenMetric, strType='softmax') # -20.0 is a hyperparameter, called 'alpha' in the paper, that could be learned using a torch.Parameter
 
 	cv2.imshow(winname='summation', mat=tenSummation[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
 	cv2.imshow(winname='average', mat=tenAverage[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
