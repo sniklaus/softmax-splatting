@@ -239,8 +239,6 @@ def cupy_launch(strFunction, strKernel):
 class _FunctionSoftsplat(torch.autograd.Function):
 	@staticmethod
 	def forward(self, input, flow):
-		self.save_for_backward(input, flow)
-
 		intSamples = input.shape[0]
 		intInputDepth, intInputHeight, intInputWidth = input.shape[1], input.shape[2], input.shape[3]
 		intFlowDepth, intFlowHeight, intFlowWidth = flow.shape[1], flow.shape[2], flow.shape[3]
@@ -270,6 +268,8 @@ class _FunctionSoftsplat(torch.autograd.Function):
 			raise NotImplementedError()
 
 		# end
+
+		self.save_for_backward(input, flow)
 
 		return output
 	# end
