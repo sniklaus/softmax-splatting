@@ -20,6 +20,9 @@ kernel_Softsplat_updateOutput = '''
 		float fltOutputX = (float) (intX) + VALUE_4(flow, intN, 0, intY, intX);
 		float fltOutputY = (float) (intY) + VALUE_4(flow, intN, 1, intY, intX);
 
+		assert(isfinite(fltOutputX) == true);
+		assert(isfinite(fltOutputY) == true);
+
 		int intNorthwestX = (int) (floor(fltOutputX));
 		int intNorthwestY = (int) (floor(fltOutputY));
 		int intNortheastX = intNorthwestX + 1;
@@ -70,6 +73,9 @@ kernel_Softsplat_updateGradInput = '''
 
 		float fltOutputX = (float) (intX) + VALUE_4(flow, intN, 0, intY, intX);
 		float fltOutputY = (float) (intY) + VALUE_4(flow, intN, 1, intY, intX);
+
+		assert(isfinite(fltOutputX) == true);
+		assert(isfinite(fltOutputY) == true);
 
 		int intNorthwestX = (int) (floor(fltOutputX));
 		int intNorthwestY = (int) (floor(fltOutputY));
@@ -123,6 +129,9 @@ kernel_Softsplat_updateGradFlow = '''
 
 		float fltOutputX = (float) (intX) + VALUE_4(flow, intN, 0, intY, intX);
 		float fltOutputY = (float) (intY) + VALUE_4(flow, intN, 1, intY, intX);
+
+		assert(isfinite(fltOutputX) == true);
+		assert(isfinite(fltOutputY) == true);
 
 		int intNorthwestX = (int) (floor(fltOutputX));
 		int intNorthwestY = (int) (floor(fltOutputY));
