@@ -5,11 +5,13 @@ import torch
 import cv2
 import numpy
 
-import softsplat
+import softsplat # the custom softmax splatting layer
 
 ##########################################################
 
-assert(int(str('').join(torch.__version__.split('.')[0:2])) >= 13) # requires at least pytorch version 1.3.0
+torch.set_grad_enabled(False) # make sure to not compute gradients for computational performance
+
+torch.backends.cudnn.enabled = True # make sure to use cudnn for computational performance
 
 ##########################################################
 
@@ -30,17 +32,17 @@ def read_flo(strFile):
 
 backwarp_tenGrid = {}
 
-def backwarp(tenInput, tenFlow):
+def backwarp(tenIn, tenFlow):
 	if str(tenFlow.shape) not in backwarp_tenGrid:
 		tenHor = torch.linspace(-1.0 + (1.0 / tenFlow.shape[3]), 1.0 - (1.0 / tenFlow.shape[3]), tenFlow.shape[3]).view(1, 1, 1, -1).expand(-1, -1, tenFlow.shape[2], -1)
 		tenVer = torch.linspace(-1.0 + (1.0 / tenFlow.shape[2]), 1.0 - (1.0 / tenFlow.shape[2]), tenFlow.shape[2]).view(1, 1, -1, 1).expand(-1, -1, -1, tenFlow.shape[3])
 
-		backwarp_tenGrid[str(tenFlow.shape)] = torch.cat([ tenHor, tenVer ], 1).cuda()
+		backwarp_tenGrid[str(tenFlow.shape)] = torch.cat([tenHor, tenVer], 1).cuda()
 	# end
 
-	tenFlow = torch.cat([ tenFlow[:, 0:1, :, :] / ((tenInput.shape[3] - 1.0) / 2.0), tenFlow[:, 1:2, :, :] / ((tenInput.shape[2] - 1.0) / 2.0) ], 1)
+	tenFlow = torch.cat([tenFlow[:, 0:1, :, :] / ((tenIn.shape[3] - 1.0) / 2.0), tenFlow[:, 1:2, :, :] / ((tenIn.shape[2] - 1.0) / 2.0)], 1)
 
-	return torch.nn.functional.grid_sample(input=tenInput, grid=(backwarp_tenGrid[str(tenFlow.shape)] + tenFlow).permute(0, 2, 3, 1), mode='bilinear', padding_mode='zeros', align_corners=False)
+	return torch.nn.functional.grid_sample(input=tenIn, grid=(backwarp_tenGrid[str(tenFlow.shape)] + tenFlow).permute(0, 2, 3, 1), mode='bilinear', padding_mode='zeros', align_corners=False)
 # end
 
 ##########################################################
@@ -49,13 +51,13 @@ tenOne = torch.FloatTensor(numpy.ascontiguousarray(cv2.imread(filename='./images
 tenTwo = torch.FloatTensor(numpy.ascontiguousarray(cv2.imread(filename='./images/two.png', flags=-1).transpose(2, 0, 1)[None, :, :, :].astype(numpy.float32) * (1.0 / 255.0))).cuda()
 tenFlow = torch.FloatTensor(numpy.ascontiguousarray(read_flo('./images/flow.flo').transpose(2, 0, 1)[None, :, :, :])).cuda()
 
-tenMetric = torch.nn.functional.l1_loss(input=tenOne, target=backwarp(tenInput=tenTwo, tenFlow=tenFlow), reduction='none').mean(1, True)
+tenMetric = torch.nn.functional.l1_loss(input=tenOne, target=backwarp(tenIn=tenTwo, tenFlow=tenFlow), reduction='none').mean(1, True)
 
 for intTime, fltTime in enumerate(numpy.linspace(0.0, 1.0, 11).tolist()):
-	tenSummation = softsplat.FunctionSoftsplat(tenInput=tenOne, tenFlow=tenFlow * fltTime, tenMetric=None, strType='summation')
-	tenAverage = softsplat.FunctionSoftsplat(tenInput=tenOne, tenFlow=tenFlow * fltTime, tenMetric=None, strType='average')
-	tenLinear = softsplat.FunctionSoftsplat(tenInput=tenOne, tenFlow=tenFlow * fltTime, tenMetric=(0.3 - tenMetric).clip(0.0000001, 1.0), strType='linear') # finding a good linearly metric is difficult, and it is not invariant to translations
-	tenSoftmax = softsplat.FunctionSoftsplat(tenInput=tenOne, tenFlow=tenFlow * fltTime, tenMetric=-20.0 * tenMetric, strType='softmax') # -20.0 is a hyperparameter, called 'alpha' in the paper, that could be learned using a torch.Parameter
+	tenSummation = softsplat.softsplat(tenIn=tenOne, tenFlow=tenFlow * fltTime, tenMetric=None, strMode='sum')
+	tenAverage = softsplat.softsplat(tenIn=tenOne, tenFlow=tenFlow * fltTime, tenMetric=None, strMode='avg')
+	tenLinear = softsplat.softsplat(tenIn=tenOne, tenFlow=tenFlow * fltTime, tenMetric=(0.3 - tenMetric).clip(0.001, 1.0), strMode='linear') # finding a good linearly metric is difficult, and it is not invariant to translations
+	tenSoftmax = softsplat.softsplat(tenIn=tenOne, tenFlow=tenFlow * fltTime, tenMetric=(-20.0 * tenMetric).clip(-20.0, 20.0), strMode='soft') # -20.0 is a hyperparameter, called 'alpha' in the paper, that could be learned using a torch.Parameter
 
 	cv2.imshow(winname='summation', mat=tenSummation[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
 	cv2.imshow(winname='average', mat=tenAverage[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
