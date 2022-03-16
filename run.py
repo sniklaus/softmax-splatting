@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-import torch
-
 import cv2
 import numpy
+import torch
 
 import softsplat # the custom softmax splatting layer
 
