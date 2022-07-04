@@ -317,19 +317,19 @@ class softsplat_func(torch.autograd.Function):
                     {{type}} fltSouthwest = (({{type}}) (intNortheastX) - fltX) * (fltY - ({{type}}) (intNortheastY));
                     {{type}} fltSoutheast = (fltX - ({{type}}) (intNorthwestX)) * (fltY - ({{type}}) (intNorthwestY));
 
-                    if ((intNorthwestX >= 0) & (intNorthwestX < SIZE_3(tenOut)) & (intNorthwestY >= 0) & (intNorthwestY < SIZE_2(tenOut))) {
+                    if ((intNorthwestX >= 0) && (intNorthwestX < SIZE_3(tenOut)) && (intNorthwestY >= 0) && (intNorthwestY < SIZE_2(tenOut))) {
                         atomicAdd(&tenOut[OFFSET_4(tenOut, intN, intC, intNorthwestY, intNorthwestX)], fltIn * fltNorthwest);
                     }
 
-                    if ((intNortheastX >= 0) & (intNortheastX < SIZE_3(tenOut)) & (intNortheastY >= 0) & (intNortheastY < SIZE_2(tenOut))) {
+                    if ((intNortheastX >= 0) && (intNortheastX < SIZE_3(tenOut)) && (intNortheastY >= 0) && (intNortheastY < SIZE_2(tenOut))) {
                         atomicAdd(&tenOut[OFFSET_4(tenOut, intN, intC, intNortheastY, intNortheastX)], fltIn * fltNortheast);
                     }
 
-                    if ((intSouthwestX >= 0) & (intSouthwestX < SIZE_3(tenOut)) & (intSouthwestY >= 0) & (intSouthwestY < SIZE_2(tenOut))) {
+                    if ((intSouthwestX >= 0) && (intSouthwestX < SIZE_3(tenOut)) && (intSouthwestY >= 0) && (intSouthwestY < SIZE_2(tenOut))) {
                         atomicAdd(&tenOut[OFFSET_4(tenOut, intN, intC, intSouthwestY, intSouthwestX)], fltIn * fltSouthwest);
                     }
 
-                    if ((intSoutheastX >= 0) & (intSoutheastX < SIZE_3(tenOut)) & (intSoutheastY >= 0) & (intSoutheastY < SIZE_2(tenOut))) {
+                    if ((intSoutheastX >= 0) && (intSoutheastX < SIZE_3(tenOut)) && (intSoutheastY >= 0) && (intSoutheastY < SIZE_2(tenOut))) {
                         atomicAdd(&tenOut[OFFSET_4(tenOut, intN, intC, intSoutheastY, intSoutheastX)], fltIn * fltSoutheast);
                     }
                 } }
@@ -381,7 +381,7 @@ class softsplat_func(torch.autograd.Function):
 
                     assert(SIZE_1(tenFlow) == 2);
 
-                    {{type}} fltIngrad = 0.0;
+                    {{type}} fltIngrad = 0.0f;
 
                     {{type}} fltX = ({{type}}) (intX) + VALUE_4(tenFlow, intN, 0, intY, intX);
                     {{type}} fltY = ({{type}}) (intY) + VALUE_4(tenFlow, intN, 1, intY, intX);
@@ -403,19 +403,19 @@ class softsplat_func(torch.autograd.Function):
                     {{type}} fltSouthwest = (({{type}}) (intNortheastX) - fltX) * (fltY - ({{type}}) (intNortheastY));
                     {{type}} fltSoutheast = (fltX - ({{type}}) (intNorthwestX)) * (fltY - ({{type}}) (intNorthwestY));
 
-                    if ((intNorthwestX >= 0) & (intNorthwestX < SIZE_3(tenOutgrad)) & (intNorthwestY >= 0) & (intNorthwestY < SIZE_2(tenOutgrad))) {
+                    if ((intNorthwestX >= 0) && (intNorthwestX < SIZE_3(tenOutgrad)) && (intNorthwestY >= 0) && (intNorthwestY < SIZE_2(tenOutgrad))) {
                         fltIngrad += VALUE_4(tenOutgrad, intN, intC, intNorthwestY, intNorthwestX) * fltNorthwest;
                     }
 
-                    if ((intNortheastX >= 0) & (intNortheastX < SIZE_3(tenOutgrad)) & (intNortheastY >= 0) & (intNortheastY < SIZE_2(tenOutgrad))) {
+                    if ((intNortheastX >= 0) && (intNortheastX < SIZE_3(tenOutgrad)) && (intNortheastY >= 0) && (intNortheastY < SIZE_2(tenOutgrad))) {
                         fltIngrad += VALUE_4(tenOutgrad, intN, intC, intNortheastY, intNortheastX) * fltNortheast;
                     }
 
-                    if ((intSouthwestX >= 0) & (intSouthwestX < SIZE_3(tenOutgrad)) & (intSouthwestY >= 0) & (intSouthwestY < SIZE_2(tenOutgrad))) {
+                    if ((intSouthwestX >= 0) && (intSouthwestX < SIZE_3(tenOutgrad)) && (intSouthwestY >= 0) && (intSouthwestY < SIZE_2(tenOutgrad))) {
                         fltIngrad += VALUE_4(tenOutgrad, intN, intC, intSouthwestY, intSouthwestX) * fltSouthwest;
                     }
 
-                    if ((intSoutheastX >= 0) & (intSoutheastX < SIZE_3(tenOutgrad)) & (intSoutheastY >= 0) & (intSoutheastY < SIZE_2(tenOutgrad))) {
+                    if ((intSoutheastX >= 0) && (intSoutheastX < SIZE_3(tenOutgrad)) && (intSoutheastY >= 0) && (intSoutheastY < SIZE_2(tenOutgrad))) {
                         fltIngrad += VALUE_4(tenOutgrad, intN, intC, intSoutheastY, intSoutheastX) * fltSoutheast;
                     }
 
@@ -452,7 +452,7 @@ class softsplat_func(torch.autograd.Function):
 
                     assert(SIZE_1(tenFlow) == 2);
 
-                    {{type}} fltFlowgrad = 0.0;
+                    {{type}} fltFlowgrad = 0.0f;
 
                     {{type}} fltX = ({{type}}) (intX) + VALUE_4(tenFlow, intN, 0, intY, intX);
                     {{type}} fltY = ({{type}}) (intY) + VALUE_4(tenFlow, intN, 1, intY, intX);
@@ -469,41 +469,41 @@ class softsplat_func(torch.autograd.Function):
                     int intSoutheastX = intNorthwestX + 1;
                     int intSoutheastY = intNorthwestY + 1;
 
-                    {{type}} fltNorthwest = 0.0;
-                    {{type}} fltNortheast = 0.0;
-                    {{type}} fltSouthwest = 0.0;
-                    {{type}} fltSoutheast = 0.0;
+                    {{type}} fltNorthwest = 0.0f;
+                    {{type}} fltNortheast = 0.0f;
+                    {{type}} fltSouthwest = 0.0f;
+                    {{type}} fltSoutheast = 0.0f;
 
                     if (intC == 0) {
-                        fltNorthwest = (({{type}}) (-1.0)) * (({{type}}) (intSoutheastY) - fltY);
-                        fltNortheast = (({{type}}) (+1.0)) * (({{type}}) (intSouthwestY) - fltY);
-                        fltSouthwest = (({{type}}) (-1.0)) * (fltY - ({{type}}) (intNortheastY));
-                        fltSoutheast = (({{type}}) (+1.0)) * (fltY - ({{type}}) (intNorthwestY));
+                        fltNorthwest = (({{type}}) (-1.0f)) * (({{type}}) (intSoutheastY) - fltY);
+                        fltNortheast = (({{type}}) (+1.0f)) * (({{type}}) (intSouthwestY) - fltY);
+                        fltSouthwest = (({{type}}) (-1.0f)) * (fltY - ({{type}}) (intNortheastY));
+                        fltSoutheast = (({{type}}) (+1.0f)) * (fltY - ({{type}}) (intNorthwestY));
 
                     } else if (intC == 1) {
-                        fltNorthwest = (({{type}}) (intSoutheastX) - fltX) * (({{type}}) (-1.0));
-                        fltNortheast = (fltX - ({{type}}) (intSouthwestX)) * (({{type}}) (-1.0));
-                        fltSouthwest = (({{type}}) (intNortheastX) - fltX) * (({{type}}) (+1.0));
-                        fltSoutheast = (fltX - ({{type}}) (intNorthwestX)) * (({{type}}) (+1.0));
+                        fltNorthwest = (({{type}}) (intSoutheastX) - fltX) * (({{type}}) (-1.0f));
+                        fltNortheast = (fltX - ({{type}}) (intSouthwestX)) * (({{type}}) (-1.0f));
+                        fltSouthwest = (({{type}}) (intNortheastX) - fltX) * (({{type}}) (+1.0f));
+                        fltSoutheast = (fltX - ({{type}}) (intNorthwestX)) * (({{type}}) (+1.0f));
 
                     }
 
                     for (int intChannel = 0; intChannel < SIZE_1(tenOutgrad); intChannel += 1) {
                         {{type}} fltIn = VALUE_4(tenIn, intN, intChannel, intY, intX);
 
-                        if ((intNorthwestX >= 0) & (intNorthwestX < SIZE_3(tenOutgrad)) & (intNorthwestY >= 0) & (intNorthwestY < SIZE_2(tenOutgrad))) {
+                        if ((intNorthwestX >= 0) && (intNorthwestX < SIZE_3(tenOutgrad)) && (intNorthwestY >= 0) && (intNorthwestY < SIZE_2(tenOutgrad))) {
                             fltFlowgrad += VALUE_4(tenOutgrad, intN, intChannel, intNorthwestY, intNorthwestX) * fltIn * fltNorthwest;
                         }
 
-                        if ((intNortheastX >= 0) & (intNortheastX < SIZE_3(tenOutgrad)) & (intNortheastY >= 0) & (intNortheastY < SIZE_2(tenOutgrad))) {
+                        if ((intNortheastX >= 0) && (intNortheastX < SIZE_3(tenOutgrad)) && (intNortheastY >= 0) && (intNortheastY < SIZE_2(tenOutgrad))) {
                             fltFlowgrad += VALUE_4(tenOutgrad, intN, intChannel, intNortheastY, intNortheastX) * fltIn * fltNortheast;
                         }
 
-                        if ((intSouthwestX >= 0) & (intSouthwestX < SIZE_3(tenOutgrad)) & (intSouthwestY >= 0) & (intSouthwestY < SIZE_2(tenOutgrad))) {
+                        if ((intSouthwestX >= 0) && (intSouthwestX < SIZE_3(tenOutgrad)) && (intSouthwestY >= 0) && (intSouthwestY < SIZE_2(tenOutgrad))) {
                             fltFlowgrad += VALUE_4(tenOutgrad, intN, intChannel, intSouthwestY, intSouthwestX) * fltIn * fltSouthwest;
                         }
 
-                        if ((intSoutheastX >= 0) & (intSoutheastX < SIZE_3(tenOutgrad)) & (intSoutheastY >= 0) & (intSoutheastY < SIZE_2(tenOutgrad))) {
+                        if ((intSoutheastX >= 0) && (intSoutheastX < SIZE_3(tenOutgrad)) && (intSoutheastY >= 0) && (intSoutheastY < SIZE_2(tenOutgrad))) {
                             fltFlowgrad += VALUE_4(tenOutgrad, intN, intChannel, intSoutheastY, intSoutheastX) * fltIn * fltSoutheast;
                         }
                     }
