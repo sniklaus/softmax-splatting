@@ -361,8 +361,8 @@ class softsplat_func(torch.autograd.Function):
 
         tenOutgrad = tenOutgrad.contiguous(); assert(tenOutgrad.is_cuda == True)
 
-        tenIngrad = tenIn.new_empty([tenIn.shape[0], tenIn.shape[1], tenIn.shape[2], tenIn.shape[3]]) if self.needs_input_grad[0] == True else None
-        tenFlowgrad = tenFlow.new_empty([tenFlow.shape[0], tenFlow.shape[1], tenFlow.shape[2], tenFlow.shape[3]]) if self.needs_input_grad[1] == True else None
+        tenIngrad = tenIn.new_zeros([tenIn.shape[0], tenIn.shape[1], tenIn.shape[2], tenIn.shape[3]]) if self.needs_input_grad[0] == True else None
+        tenFlowgrad = tenFlow.new_zeros([tenFlow.shape[0], tenFlow.shape[1], tenFlow.shape[2], tenFlow.shape[3]]) if self.needs_input_grad[1] == True else None
 
         if tenIngrad is not None:
             cuda_launch(cuda_kernel('softsplat_ingrad', '''

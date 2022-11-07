@@ -9,16 +9,11 @@ import skimage.metrics
 import sys
 import torch
 
+import run
+
 ##########################################################
 
-print('this benchmark script can be used to compute the Xiph metrics from our paper')
-print('please note that it uses the SepConv method for doing the actual interpolation')
-print('be aware that the script first downloads about 12 gigabytes of data from Xiph')
-print('do you want to continue with the execution of this script? [y/n]')
-
-if input().lower() != 'y':
-    sys.exit(0)
-# end
+run.arguments_strModel = 'l1'
 
 ##########################################################
 
@@ -60,50 +55,35 @@ if len(glob.glob('./netflix/Tango-*.png')) != 100:
 
 ##########################################################
 
-if os.path.exists('./sepconv-slomo') == False:
-    os.system('git clone https://github.com/sniklaus/sepconv-slomo')
-    os.system('cd ./sepconv-slomo && bash download.bash')
-    os.system('sed -i "s#assert(intWidth <= 1280)##g" ./sepconv-slomo/run.py')
-    os.system('sed -i "s#assert(intHeight <= 720)##g" ./sepconv-slomo/run.py')
-# end
-
-sys.path.insert(0, './sepconv-slomo')
-sys.path.insert(0, './sepconv-slomo/sepconv')
-import run
-run.arguments_strModel = 'l1'
-run.arguments_strPadding = 'paper'
-
-##########################################################
-
 for strCategory in ['resized', 'cropped']:
     fltPsnr = []
     fltSsim = []
 
     for strFile in ['BoxingPractice', 'Crosswalk', 'DrivingPOV', 'FoodMarket', 'FoodMarket2', 'RitualDance', 'SquareAndTimelapse', 'Tango']:
         for intFrame in range(2, 99, 2):
-            npyFirst = cv2.imread(filename='./netflix/' + strFile + '-' + str(intFrame - 1).zfill(3) + '.png', flags=-1)
-            npySecond = cv2.imread(filename='./netflix/' + strFile + '-' + str(intFrame + 1).zfill(3) + '.png', flags=-1)
-            npyReference = cv2.imread(filename='./netflix/' + strFile + '-' + str(intFrame).zfill(3) + '.png', flags=-1)
+            npyOne = cv2.imread(filename='./netflix/' + strFile + '-' + str(intFrame - 1).zfill(3) + '.png', flags=-1)
+            npyTwo = cv2.imread(filename='./netflix/' + strFile + '-' + str(intFrame + 1).zfill(3) + '.png', flags=-1)
+            npyTruth = cv2.imread(filename='./netflix/' + strFile + '-' + str(intFrame).zfill(3) + '.png', flags=-1)
 
             if strCategory == 'resized':
-                npyFirst = cv2.resize(src=npyFirst, dsize=(2048, 1080), fx=0.0, fy=0.0, interpolation=cv2.INTER_AREA)
-                npySecond = cv2.resize(src=npySecond, dsize=(2048, 1080), fx=0.0, fy=0.0, interpolation=cv2.INTER_AREA)
-                npyReference = cv2.resize(src=npyReference, dsize=(2048, 1080), fx=0.0, fy=0.0, interpolation=cv2.INTER_AREA)
+                npyOne = cv2.resize(src=npyOne, dsize=(2048, 1080), fx=0.0, fy=0.0, interpolation=cv2.INTER_AREA)
+                npyTwo = cv2.resize(src=npyTwo, dsize=(2048, 1080), fx=0.0, fy=0.0, interpolation=cv2.INTER_AREA)
+                npyTruth = cv2.resize(src=npyTruth, dsize=(2048, 1080), fx=0.0, fy=0.0, interpolation=cv2.INTER_AREA)
 
             elif strCategory == 'cropped':
-                npyFirst = npyFirst[540:-540, 1024:-1024, :]
-                npySecond = npySecond[540:-540, 1024:-1024, :]
-                npyReference = npyReference[540:-540, 1024:-1024, :]
+                npyOne = npyOne[540:-540, 1024:-1024, :]
+                npyTwo = npyTwo[540:-540, 1024:-1024, :]
+                npyTruth = npyTruth[540:-540, 1024:-1024, :]
 
             # end
 
-            tenFirst = torch.FloatTensor(numpy.ascontiguousarray(npyFirst.transpose(2, 0, 1).astype(numpy.float32) * (1.0 / 255.0)))
-            tenSecond = torch.FloatTensor(numpy.ascontiguousarray(npySecond.transpose(2, 0, 1).astype(numpy.float32) * (1.0 / 255.0)))
-            
-            npyEstimate = (run.estimate(tenFirst, tenSecond).clip(0.0, 1.0).numpy().transpose(1, 2, 0) * 255.0).astype(numpy.uint8)
+            tenOne = torch.FloatTensor(numpy.ascontiguousarray(npyOne.transpose(2, 0, 1).astype(numpy.float32) * (1.0 / 255.0)))
+            tenTwo = torch.FloatTensor(numpy.ascontiguousarray(npyTwo.transpose(2, 0, 1).astype(numpy.float32) * (1.0 / 255.0)))
 
-            fltPsnr.append(skimage.metrics.peak_signal_noise_ratio(image_true=npyReference, image_test=npyEstimate, data_range=255))
-            fltSsim.append(skimage.metrics.structural_similarity(im1=npyReference, im2=npyEstimate, data_range=255, multichannel=True))
+            npyEstimate = (run.estimate(tenOne, tenTwo, [0.5])[0].clip(0.0, 1.0).numpy().transpose(1, 2, 0) * 255.0).round().astype(numpy.uint8)
+
+            fltPsnr.append(skimage.metrics.peak_signal_noise_ratio(image_true=npyTruth, image_test=npyEstimate, data_range=255))
+            fltSsim.append(skimage.metrics.structural_similarity(im1=npyTruth, im2=npyEstimate, data_range=255, multichannel=True))
         # end
     # end
 
