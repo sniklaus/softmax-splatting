@@ -10,8 +10,6 @@ The softmax splatting is implemented in CUDA using CuPy, which is why CuPy is a 
 
 If you plan to process videos, then please also make sure to have `pip install moviepy` installed.
 
-The provided example script is using OpenCV to load and display images, as well as to read the provided optical flow file. An easy way to install OpenCV for Python is using the `pip install opencv-contrib-python` package.
-
 ## usage
 To run it on your own pair of frames, use the following command.
 
@@ -29,6 +27,8 @@ For a quick benchmark using examples from the Middlebury benchmark for optical f
 
 ## warping
 We provide a small script to replicate the third figure of our paper [1]. You can simply run the following to obtain the comparison between summation splatting, average splatting, linear splatting, and softmax splatting.
+
+The example script is using OpenCV to load and display images, as well as to read the provided optical flow file. An easy way to install OpenCV for Python is using the `pip install opencv-contrib-python` package.
 
 ```
 import cv2
