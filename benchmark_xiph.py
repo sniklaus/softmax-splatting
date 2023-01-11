@@ -17,9 +17,7 @@ run.arguments_strModel = 'l1'
 
 ##########################################################
 
-if os.path.exists('./netflix') == False:
-    os.makedirs('./netflix')
-# end
+os.makedirs(name='./netflix', exist_ok=True)
 
 if len(glob.glob('./netflix/BoxingPractice-*.png')) != 100:
     os.system('ffmpeg -i https://media.xiph.org/video/derf/ElFuente/Netflix_BoxingPractice_4096x2160_60fps_10bit_420.y4m -pix_fmt rgb24 -vframes 100 ./netflix/BoxingPractice-%03d.png')
