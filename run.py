@@ -25,18 +25,24 @@ torch.backends.cudnn.enabled = True # make sure to use cudnn for computational p
 
 ##########################################################
 
-arguments_strModel = 'lf'
-arguments_strOne = './images/one.png'
-arguments_strTwo = './images/two.png'
-arguments_strVideo = './videos/car-turn.mp4'
-arguments_strOut = './out.png'
+args_strModel = 'lf'
+args_strOne = './images/one.png'
+args_strTwo = './images/two.png'
+args_strVideo = './videos/car-turn.mp4'
+args_strOut = './out.png'
 
-for strOption, strArgument in getopt.getopt(sys.argv[1:], '', [strParameter[2:] + '=' for strParameter in sys.argv[1::2]])[0]:
-    if strOption == '--model' and strArgument != '': arguments_strModel = strArgument # which model to use
-    if strOption == '--one' and strArgument != '': arguments_strOne = strArgument # path to the first frame
-    if strOption == '--two' and strArgument != '': arguments_strTwo = strArgument # path to the second frame
-    if strOption == '--video' and strArgument != '': arguments_strVideo = strArgument # path to a video
-    if strOption == '--out' and strArgument != '': arguments_strOut = strArgument # path to where the output should be stored
+for strOption, strArg in getopt.getopt(sys.argv[1:], '', [
+    'model=',
+    'one=',
+    'two=',
+    'video=',
+    'out=',
+])[0]:
+    if strOption == '--model' and strArg != '': args_strModel = strArg # which model to use
+    if strOption == '--one' and strArg != '': args_strOne = strArg # path to the first frame
+    if strOption == '--two' and strArg != '': args_strTwo = strArg # path to the second frame
+    if strOption == '--video' and strArg != '': args_strVideo = strArg # path to a video
+    if strOption == '--out' and strArg != '': args_strOut = strArg # path to where the output should be stored
 # end
 
 ##########################################################
@@ -549,7 +555,7 @@ class Network(torch.nn.Module):
 
         self.netSynthesis = Synthesis()
 
-        self.load_state_dict({strKey.replace('module', 'net'): tenWeight for strKey, tenWeight in torch.hub.load_state_dict_from_url(url='http://content.sniklaus.com/softsplat/network-' + arguments_strModel + '.pytorch', file_name='softsplat-' + arguments_strModel).items()})
+        self.load_state_dict({strKey.replace('module', 'net'): tenWeight for strKey, tenWeight in torch.hub.load_state_dict_from_url(url='http://content.sniklaus.com/softsplat/network-' + args_strModel + '.pytorch', file_name='softsplat-' + args_strModel).items()})
     # end
 
     def forward(self, tenOne, tenTwo, fltTimes):
@@ -601,27 +607,27 @@ def estimate(tenOne, tenTwo, fltTimes):
 ##########################################################
 
 if __name__ == '__main__':
-    if arguments_strOut.split('.')[-1] in ['bmp', 'jpg', 'jpeg', 'png']:
-        tenOne = torch.FloatTensor(numpy.ascontiguousarray(numpy.array(PIL.Image.open(arguments_strOne))[:, :, ::-1].transpose(2, 0, 1).astype(numpy.float32) * (1.0 / 255.0)))
-        tenTwo = torch.FloatTensor(numpy.ascontiguousarray(numpy.array(PIL.Image.open(arguments_strTwo))[:, :, ::-1].transpose(2, 0, 1).astype(numpy.float32) * (1.0 / 255.0)))
+    if args_strOut.split('.')[-1] in ['bmp', 'jpg', 'jpeg', 'png']:
+        tenOne = torch.FloatTensor(numpy.ascontiguousarray(numpy.array(PIL.Image.open(args_strOne))[:, :, ::-1].transpose(2, 0, 1).astype(numpy.float32) * (1.0 / 255.0)))
+        tenTwo = torch.FloatTensor(numpy.ascontiguousarray(numpy.array(PIL.Image.open(args_strTwo))[:, :, ::-1].transpose(2, 0, 1).astype(numpy.float32) * (1.0 / 255.0)))
 
         tenOutput = estimate(tenOne, tenTwo, [0.5])[0]
 
-        PIL.Image.fromarray((tenOutput.clip(0.0, 1.0).numpy().transpose(1, 2, 0)[:, :, ::-1] * 255.0).astype(numpy.uint8)).save(arguments_strOut)
+        PIL.Image.fromarray((tenOutput.clip(0.0, 1.0).numpy().transpose(1, 2, 0)[:, :, ::-1] * 255.0).astype(numpy.uint8)).save(args_strOut)
 
-    elif arguments_strOut.split('.')[-1] in ['avi', 'mp4', 'webm', 'wmv']:
+    elif args_strOut.split('.')[-1] in ['avi', 'mp4', 'webm', 'wmv']:
         import moviepy
         import moviepy.editor
         import moviepy.video.io.ffmpeg_writer
 
-        objVideoreader = moviepy.editor.VideoFileClip(filename=arguments_strVideo)
+        objVideoreader = moviepy.editor.VideoFileClip(filename=args_strVideo)
 
         intWidth = objVideoreader.w
         intHeight = objVideoreader.h
 
         tenFrames = [None, None, None, None, None]
 
-        with moviepy.video.io.ffmpeg_writer.FFMPEG_VideoWriter(filename=arguments_strOut, size=(intWidth, intHeight), fps=objVideoreader.fps) as objVideowriter:
+        with moviepy.video.io.ffmpeg_writer.FFMPEG_VideoWriter(filename=args_strOut, size=(intWidth, intHeight), fps=objVideoreader.fps) as objVideowriter:
             for npyFrame in objVideoreader.iter_frames():
                 tenFrames[4] = torch.FloatTensor(numpy.ascontiguousarray(npyFrame[:, :, ::-1].transpose(2, 0, 1).astype(numpy.float32) * (1.0 / 255.0)))
 

@@ -13,7 +13,7 @@ import run
 
 ##########################################################
 
-run.arguments_strModel = 'l1'
+run.args_strModel = 'l1'
 
 ##########################################################
 
@@ -81,7 +81,7 @@ for strCategory in ['resized', 'cropped']:
             npyEstimate = (run.estimate(tenOne, tenTwo, [0.5])[0].clip(0.0, 1.0).numpy().transpose(1, 2, 0) * 255.0).round().astype(numpy.uint8)
 
             fltPsnr.append(skimage.metrics.peak_signal_noise_ratio(image_true=npyTruth, image_test=npyEstimate, data_range=255))
-            fltSsim.append(skimage.metrics.structural_similarity(im1=npyTruth, im2=npyEstimate, data_range=255, multichannel=True))
+            fltSsim.append(skimage.metrics.structural_similarity(im1=npyTruth, im2=npyEstimate, data_range=255, channel_axis=2))
         # end
     # end
 
