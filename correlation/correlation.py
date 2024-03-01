@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import cupy
+import os
 import re
 import torch
 
@@ -270,7 +271,11 @@ def cupy_kernel(strFunction, objVariables):
 
 @cupy.memoize(for_each_device=True)
 def cupy_launch(strFunction, strKernel):
-    return cupy.cuda.compile_with_cache(strKernel).get_function(strFunction)
+    if 'CUDA_HOME' not in os.environ:
+        os.environ['CUDA_HOME'] = cupy.cuda.get_cuda_path()
+    # end
+
+    return cupy.RawKernel(strKernel, strFunction, tuple(['-I ' + os.environ['CUDA_HOME'], '-I ' + os.environ['CUDA_HOME'] + '/include']))
 # end
 
 class _FunctionCorrelation(torch.autograd.Function):
