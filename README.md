@@ -1,7 +1,7 @@
 # softmax-splatting
 This is a reference implementation of the softmax splatting operator, which has been proposed in Softmax Splatting for Video Frame Interpolation [1], using PyTorch. Softmax splatting is a well-motivated approach for differentiable forward warping. It uses a translational invariant importance metric to disambiguate cases where multiple source pixels map to the same target pixel. Should you be making use of our work, please cite our paper [1].
 
-<a href="https://arxiv.org/abs/2003.05534" rel="Paper"><img src="http://content.sniklaus.com/softsplat/paper.jpg" alt="Paper" width="100%"></a>
+<a href="https://arxiv.org/abs/2003.05534"><img src="http://content.sniklaus.com/softsplat/paper.jpg" alt="Paper" width="100%"></a>
 
 For our previous work on SepConv, see: https://github.com/sniklaus/revisiting-sepconv
 
@@ -59,10 +59,10 @@ for intTime, fltTime in enumerate(numpy.linspace(0.0, 1.0, 11).tolist()):
     tenLinear = softsplat.softsplat(tenIn=tenOne, tenFlow=tenFlow * fltTime, tenMetric=(0.3 - tenMetric).clip(0.001, 1.0), strMode='linear') # finding a good linearly metric is difficult, and it is not invariant to translations
     tenSoftmax = softsplat.softsplat(tenIn=tenOne, tenFlow=tenFlow * fltTime, tenMetric=(-20.0 * tenMetric).clip(-20.0, 20.0), strMode='soft') # -20.0 is a hyperparameter, called 'alpha' in the paper, that could be learned using a torch.Parameter
 
-    cv2.imshow(winname='summation', mat=tenSummation[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
-    cv2.imshow(winname='average', mat=tenAverage[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
-    cv2.imshow(winname='linear', mat=tenLinear[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
-    cv2.imshow(winname='softmax', mat=tenSoftmax[0, :, :, :].cpu().numpy().transpose(1, 2, 0))
+    cv2.imshow(winname='summation', mat=tenSummation[0, :, :, :].numpy(force=True).transpose(1, 2, 0))
+    cv2.imshow(winname='average', mat=tenAverage[0, :, :, :].numpy(force=True).transpose(1, 2, 0))
+    cv2.imshow(winname='linear', mat=tenLinear[0, :, :, :].numpy(force=True).transpose(1, 2, 0))
+    cv2.imshow(winname='softmax', mat=tenSoftmax[0, :, :, :].numpy(force=True).transpose(1, 2, 0))
     cv2.waitKey(delay=0)
 # end
 ```
@@ -71,7 +71,7 @@ for intTime, fltTime in enumerate(numpy.linspace(0.0, 1.0, 11).tolist()):
 In our paper, we propose to use 4K video clips from Xiph to evaluate video frame interpolation on high-resolution footage. Please see the supplementary `benchmark_xiph.py` on how to reproduce the shown metrics.
 
 ## video
-<a href="http://content.sniklaus.com/softsplat/video.mp4" rel="Video"><img src="http://content.sniklaus.com/softsplat/video.jpg" alt="Video" width="100%"></a>
+<a href="http://content.sniklaus.com/softsplat/video.mp4"><img src="http://content.sniklaus.com/softsplat/video.jpg" alt="Video" width="100%"></a>
 
 ## license
 The provided implementation is strictly for academic purposes only. Should you be interested in using our technology for any commercial use, please feel free to contact us.
