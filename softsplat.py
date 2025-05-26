@@ -278,6 +278,9 @@ class softsplat_func(torch.autograd.Function):
     @staticmethod
     @torch.amp.custom_fwd(device_type='cuda', cast_inputs=torch.float32)
     def forward(self, tenIn, tenFlow):
+        tenIn = tenIn.float() # manual cast in case amp is not enabled
+        tenFlow = tenFlow.float() # manual cast in case amp is not enabled
+
         tenOut = tenIn.new_zeros([tenIn.shape[0], tenIn.shape[1], tenIn.shape[2], tenIn.shape[3]])
 
         if tenIn.is_cuda == True:
